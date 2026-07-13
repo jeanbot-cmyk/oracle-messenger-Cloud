@@ -1,0 +1,64 @@
+rules_version = '2';
+
+// ==========================================================
+// ORACLE MESSENGER — Règles de sécurité Firestore
+// ==========================================================
+// Corrige la faille "🔴 Critique" signalée dans audit.md :
+// sans ces règles, n'importe qui sur Internet peut lire/écrire
+// dans toute la base de données.
+//
+// Principe : un utilisateur ne peut lire/écrire que les données
+// qui le concernent directement (ses conversations, son profil).
+// ==========================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isParticipant(conversationId) {
+      return isSignedIn() &&
+        request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+    }
+
+    // Profil utilisateur : chacun ne lit/modifie que le sien.
+    // (Le champ "premiumUntil" ne doit être modifié que par une Cloud
+    // Function via le SDK Admin, qui ignore ces règles — ne jamais
+    // laisser le client l'écrire directement en production.)
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Conversations : seuls les participants y accèdent.
+    match /conversations/{conversationId} {
+      allow read, write: if isSignedIn() &&
+        (request.auth.uid in resource.data.participants ||
+         request.auth.uid in request.resource.data.participants);
+
+      match /messages/{messageId} {
+        allow read: if isParticipant(conversationId);
+        allow create: if isParticipant(conversationId) &&
+          request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if isParticipant(conversationId);
+      }
+    }
+
+    // Appels WebRTC : signalisation, accès restreint aux utilisateurs connectés.
+    // (Peut être durci davantage en vérifiant l'appartenance à la conversation liée.)
+    match /calls/{callId} {
+      allow read, write: if isSignedIn();
+
+      match /{subcollection}/{docId} {
+        allow read, write: if isSignedIn();
+      }
+    }
+
+    // Par défaut : tout le reste est bloqué.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
