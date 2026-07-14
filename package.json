@@ -1,13 +1,22 @@
 {
-  "name": "functions",
-  "description": "Backend serveur d'Oracle Messenger (notifications, vérification de paiement)",
-  "main": "index.js",
-  "engines": {
-    "node": "20"
-  },
-  "dependencies": {
-    "firebase-admin": "^12.1.1",
-    "firebase-functions": "^5.0.1"
-  },
-  "private": true
+"name": "oracle-messenger",
+"version": "0.1.0",
+"private": true,
+"main": "index.js",
+"engines": {
+"node": "20"
+},
+"scripts": {
+"dev": "next dev",
+"build": "next build",
+"start": "next start",
+"serve": "firebase serve --only functions"
+},
+"dependencies": {
+"firebase-admin": "^12.1.1",
+"firebase-functions": "^5.0.1",
+"next": "14.2.3",
+"react": "^18",
+"react-dom": "^18"
+}
 }
