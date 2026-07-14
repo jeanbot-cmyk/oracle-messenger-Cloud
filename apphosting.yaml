@@ -1,14 +1,10 @@
 # ==========================================================
 # ORACLE MESSENGER — Configuration Firebase App Hosting
 # ==========================================================
-# Ce fichier remplace toute configuration précédente.
-# Il force Firebase à ignorer le dossier "functions" pour 
-# se concentrer uniquement sur votre application Next.js.
-# ==========================================================
 
-# 1. Configuration du build : On pointe vers votre dossier application
+# 1. Configuration du build : On pointe vers la racine
 buildConfig:
-  buildDir: "oracle-messenger-app"
+  buildDir: "." 
   buildCommand: "npm run build"
 
 # 2. Configuration d'exécution (Infrastructure Cloud Run)
