@@ -1,22 +1,25 @@
 # ==========================================================
 # ORACLE MESSENGER — Configuration Firebase App Hosting
 # ==========================================================
-# Firebase App Hosting exécute ce projet Next.js sur l'infrastructure
-# Google Cloud (Cloud Run en coulisses), avec déploiement automatique
-# à chaque envoi de code.
+# Ce fichier remplace toute configuration précédente.
+# Il force Firebase à ignorer le dossier "functions" pour 
+# se concentrer uniquement sur votre application Next.js.
 # ==========================================================
 
+# 1. Configuration du build : On pointe vers votre dossier application
+buildConfig:
+  buildDir: "oracle-messenger-app"
+  buildCommand: "npm run build"
+
+# 2. Configuration d'exécution (Infrastructure Cloud Run)
 runConfig:
-  # Ressources minimales pour démarrer — ajustable plus tard selon le trafic
   cpu: 1
   memoryMiB: 512
   minInstances: 0
   maxInstances: 3
   concurrency: 80
 
-# Variables d'environnement PUBLIQUES (non sensibles) déployées avec l'app.
-# Les valeurs sensibles (clé Paystack, VAPID) se configurent séparément via :
-#   firebase apphosting:secrets:set NOM_DE_LA_VARIABLE
+# 3. Variables d'environnement publiques
 env:
   - variable: NEXT_PUBLIC_PAYSTACK_CURRENCY
     value: "XOF"
